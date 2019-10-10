@@ -50,10 +50,33 @@ class AGame(object):
         return self.cities
 
 n_game = AGame()
-n_game.add_city("foo", 123)
-n_game.add_city("kaka", 456)
+n_game.add_city("Land01", 400)
+n_game.add_city("Land02", 400)
+n_game.add_city("Land03", 200)
+n_game.add_city("Land04", 600)
+n_game.add_city("Land05", 1000)
+n_game.add_city("Land06", 300)
+n_game.add_city("Land07", 300)
+n_game.add_city("Land08", 600)
+n_game.add_city("Land09", 300)
+n_game.add_city("Land10", 1000)
+n_game.add_city("Land11", 200)
+n_game.add_city("Land12", 400)
+n_game.add_city("Land13", 600)
+n_game.add_city("Land14", 300)
+n_game.add_city("Land15", 1000)
+n_game.add_city("Land16", 200)
+n_game.add_city("Land17", 400)
+n_game.add_city("Land18", 600)
+n_game.add_city("Land19", 200)
+n_game.add_city("Land20", 400)
+n_game.add_city("Land21", 1000)
+n_game.add_city("Land22", 300)
+n_game.add_city("Land23", 400)
+n_game.add_city("Land24", 300)
+n_game.add_city("Land25", 200)
 
-host_ip = '192.168.0.131'
+host_ip = '140.113.148.79'
 
 @route('/hello/<name>')
 def index(name):
@@ -192,4 +215,5 @@ def do_add_people():
     else:
         return template('<p>City {{id}} do not exist. Please use <a href="http://{{ip}}:8080/new_city">new city</a> to create new city.', id=city_id, ip=host_ip)
 
-run(host=host_ip, port=8080)
+run(server='paste', host=host_ip, port=8080)
+# run(server='paste')

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 from bottle import route, run, template, post, get, request
 
+# country (colors): blue, red, green, yellow, empty(no one)
+
 class AGame(object):
     """docstring for AGame."""
 
@@ -8,8 +10,10 @@ class AGame(object):
         super(AGame, self).__init__()
         self.cities = {}
 
-    def add_city(self, city_name, peo_num):
-        self.cities[city_name] = peo_num
+    def add_city(self, city_name, peo_num, country_name):
+        self.cities[city_name] = {}
+        self.cities[city_name]['people'] = int(peo_num)
+        self.cities[city_name]['country'] = str(country_name)
 
     def remove_city(self, city_name):
         if city_name in self.cities:
@@ -20,25 +24,35 @@ class AGame(object):
 
     def city_add_people(self, city_name, delta_people):
         if city_name in self.cities:
-            self.cities[city_name] += delta_people
+            self.cities[city_name]['people'] += delta_people
             return True
         else:
             return False
 
     def city_del_people(self, city_name, delta_people):
         if city_name in self.cities:
-            self.cities[city_name] -= delta_people
+            self.cities[city_name]['people'] -= delta_people
             return True
         else:
             return False
 
-    def all_city_add(self, delta_people):
-        for name in self.cities:
-            self.cities[name] += delta_people
+    def all_city_add(self, delta_people, country_name):
+        if country_name == 'ALL':
+            for name in self.cities:
+                self.cities[name]['people'] += delta_people
+        else:
+            for name in self.cities:
+                if self.cities[name]['country'] == country_name:
+                    self.cities[name]['people'] += delta_people
 
-    def all_city_del(self, delta_people):
-        for name in self.cities:
-            self.cities[name] -= delta_people
+    def all_city_del(self, delta_people, country_name):
+        if country_name == 'ALL':
+            for name in self.cities:
+                self.cities[name]['people'] -= delta_people
+        else:
+            for name in self.cities:
+                if self.cities[name]['country'] == country_name:
+                    self.cities[name]['people'] -= delta_people
 
     def show_peo(self, city_name):
         if city_name in self.cities:
@@ -50,31 +64,31 @@ class AGame(object):
         return self.cities
 
 n_game = AGame()
-n_game.add_city("Land01", 400)
-n_game.add_city("Land02", 400)
-n_game.add_city("Land03", 200)
-n_game.add_city("Land04", 600)
-n_game.add_city("Land05", 1000)
-n_game.add_city("Land06", 300)
-n_game.add_city("Land07", 300)
-n_game.add_city("Land08", 600)
-n_game.add_city("Land09", 300)
-n_game.add_city("Land10", 1000)
-n_game.add_city("Land11", 200)
-n_game.add_city("Land12", 400)
-n_game.add_city("Land13", 600)
-n_game.add_city("Land14", 300)
-n_game.add_city("Land15", 1000)
-n_game.add_city("Land16", 200)
-n_game.add_city("Land17", 400)
-n_game.add_city("Land18", 600)
-n_game.add_city("Land19", 200)
-n_game.add_city("Land20", 400)
-n_game.add_city("Land21", 1000)
-n_game.add_city("Land22", 300)
-n_game.add_city("Land23", 400)
-n_game.add_city("Land24", 300)
-n_game.add_city("Land25", 200)
+n_game.add_city("Land01", 400, 'empty')
+n_game.add_city("Land02", 400, 'empty')
+n_game.add_city("Land03", 200, 'blue')
+n_game.add_city("Land04", 600, 'empty')
+n_game.add_city("Land05", 1000, 'blue')
+n_game.add_city("Land06", 300, 'blue')
+n_game.add_city("Land07", 300, 'empty')
+n_game.add_city("Land08", 600, 'empty')
+n_game.add_city("Land09", 300, 'red')
+n_game.add_city("Land10", 1000, 'red')
+n_game.add_city("Land11", 200, 'red')
+n_game.add_city("Land12", 400, 'empty')
+n_game.add_city("Land13", 600, 'empty')
+n_game.add_city("Land14", 300, 'green')
+n_game.add_city("Land15", 1000, 'green')
+n_game.add_city("Land16", 200, 'green')
+n_game.add_city("Land17", 400, 'empty')
+n_game.add_city("Land18", 600, 'empty')
+n_game.add_city("Land19", 200, 'yellow')
+n_game.add_city("Land20", 400, 'empty')
+n_game.add_city("Land21", 1000, 'yellow')
+n_game.add_city("Land22", 300, 'yellow')
+n_game.add_city("Land23", 400, 'empty')
+n_game.add_city("Land24", 300, 'empty')
+n_game.add_city("Land25", 200, 'empty')
 
 host_ip = '140.113.148.79'
 
@@ -89,18 +103,24 @@ def callback(id):
 
 @route('/see_city/<city_name>')
 def see_city(city_name):
-    peo_num = n_game.show_peo(city_name)
-    if peo_num is None:
+    land = n_game.show_peo(city_name)
+    if land is None:
         return template('<p>There is no City <b>{{name}}</b></p>!', name=city_name)
+    elif land['country'] == 'empty':
+        return template('<p>City <b>{{name}}</b>: <b><font color="red">{{num}}</font></b> people. It does NOT belongs to anyone.</p>', name=city_name, num=land['people'])
     else:
-        return template('<p>City <b>{{name}}</b>: <b><font color="red">{{num}}</font></b> people.</p>', name=city_name, num=peo_num)
+        return template('<p>City <b>{{name}}</b>: <b><font color="red">{{num}}</font></b> people. It belongs to <b><font color="{{country}}">{{country}}</font></b></p>', name=city_name, num=land['people'], country=land['country'])
 
 @route('/see_all_city/yoyodiy')
 def see_all_city():
     all_cities = n_game.get_all_city()
     answer_string = ''
     for city in all_cities:
-        answer_string += '<p>City <b>' + city + '</b>: <b><font color="red">' + str(all_cities[city]) + '</font></b> people.</p>'
+        if all_cities[city]['country'] == 'empty':
+            answer_string += '<p>City <b>' + city + '</b>: <b><font color="red">' + str(all_cities[city]['people']) + '</font></b> people. It does NOT belongs to anyone.</p>'
+        else:
+            answer_string += '<p>City <b>' + city + '</b>: <b><font color="red">' + str(all_cities[city]['people']) + '</font></b> people. It belongs to <b><font color="' + all_cities[city]['country'] + '">' + all_cities[city]['country'] + '</font></b></p>'
+
     return answer_string
 
 @get('/new_city') # or @route('/login')
@@ -145,7 +165,14 @@ def do_set_city():
 def add_all_gui():
     return '''
         <form action="/add_all" method="post">
-            How many people do you want to <b><font color="green">ADD</font></b> to <b>ALL</b> city?
+            How many people do you want to <b><font color="green">ADD</font></b> which country?
+            <p></p>
+            <input type="radio" name="country" value="ALL" checked> <b>ALL</b><br>
+            <input type="radio" name="country" value="blue"> <b><font color="blue">Blue</font></b><br>
+            <input type="radio" name="country" value="red"> <b><font color="red">Red</font></b><br>
+            <input type="radio" name="country" value="green"> <b><font color="green">Green</font></b><br>
+            <input type="radio" name="country" value="yellow"> <b><font color="yellow">Yellow</font></b><br>
+            <p></p>
             Number: <input name="people" type="number" />
             <input value="Submit" type="submit" />
         </form>
@@ -155,13 +182,23 @@ def add_all_gui():
 def do_add_all():
     delta_people = request.forms.get('people')
     n_game.all_city_add(int(delta_people))
-    return template('<p> <b><font color="green">ADD</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
+    if country_name == 'ALL':
+        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
+    else:
+        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to cities of <b><font color="{{country}}">{{country}}</font></b>.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, country=country_name, ip=host_ip)
 
 @get('/del_all') # or @route('/login')
 def add_all_gui():
     return '''
         <form action="/del_all" method="post">
-            How many people do you want to <b><font color="red">DEL</font></b> to <b>ALL</b> city?
+            How many people do you want to <b><font color="red">DEL</font></b> which country?
+            <p></p>
+            <input type="radio" name="country" value="ALL" checked> <b>ALL</b><br>
+            <input type="radio" name="country" value="blue"> <b><font color="blue">Blue</font></b><br>
+            <input type="radio" name="country" value="red"> <b><font color="red">Red</font></b><br>
+            <input type="radio" name="country" value="green"> <b><font color="green">Green</font></b><br>
+            <input type="radio" name="country" value="yellow"> <b><font color="yellow">Yellow</font></b><br>
+            <p></p>
             Number: <input name="people" type="number" />
             <input value="Submit" type="submit" />
         </form>
@@ -170,8 +207,13 @@ def add_all_gui():
 @post('/del_all') # or @route('/login', method='POST')
 def do_add_all():
     delta_people = request.forms.get('people')
-    n_game.all_city_del(int(delta_people))
-    return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
+    country_name = request.forms.get('country')
+    n_game.all_city_del(int(delta_people), str(country_name))
+    if country_name == 'ALL':
+        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
+    else:
+        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to cities of <b><font color="{{country}}">{{country}}</font></b>.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, country=country_name, ip=host_ip)
+
 
 @get('/add_people') # or @route('/login')
 def add_people_gui():

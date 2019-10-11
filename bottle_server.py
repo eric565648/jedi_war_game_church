@@ -124,8 +124,8 @@ n_game.add_city("Land23", 400, 'empty')
 n_game.add_city("Land24", 300, 'empty')
 n_game.add_city("Land25", 200, 'empty')
 
-# host_ip = '140.113.148.79'
-host_ip = '192.168.50.113'
+host_ip = '140.113.148.79'
+# host_ip = '192.168.50.113'
 
 import signal
 import sys
@@ -324,9 +324,9 @@ def do_add_all():
     country_name = request.forms.get('country_name')
     n_game.all_city_add(int(delta_people), str(country_name))
     if country_name == 'ALL':
-        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
+        return template('<p> <b><font color="green">ADD</font> {{delta_people}}</b> people to <b>ALL</b> city.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, ip=host_ip)
     else:
-        return template('<p> <b><font color="red">DEL</font> {{delta_people}}</b> people to cities of <b><font color="{{country}}">{{country}}</font></b>.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, country=country_name, ip=host_ip)
+        return template('<p> <b><font color="green">ADD</font> {{delta_people}}</b> people to cities of <b><font color="{{country}}">{{country}}</font></b>.</p> Check all city people <a href="http://{{ip}}:8080/see_all_city/yoyodiy">here</a>', delta_people=delta_people, country=country_name, ip=host_ip)
 
 @get('/del_all') # or @route('/login')
 def add_all_gui():
